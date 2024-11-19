@@ -66,31 +66,38 @@ const drawCube = (ctx, rotation) => {
         ctx.closePath();
 
         const fill = (i === rotAxis && k === rotRow) || (i === (rotAxis + 1) % 3 && j === rotRow) || (i === (rotAxis + 2) % 3 && rotRow == 0);
-        ctx.fillStyle = fill ? "#CCC" : "#E8E8E8";
+        ctx.fillStyle = fill ? "#BBB" : "#E8E8E8";
         ctx.fill();
-        ctx.strokeStyle = "#AAA";
+        ctx.strokeStyle = "#989898";
         ctx.stroke();
       }
     }
   }
 
+  const color = ["red", "green", "blue"][rotAxis];
+
   const rev = rotation.includes("'") ^ (rotRow === 2);
   for (let h = 0; h < (rotation.includes("2") ? 2 : 1); h++) {
     const di = +((!!h) ^ rev);
-    console.log(h, rev, di);
     const pts = [
       [[0.5, rotRow + 0.5], [2.5, rotRow + 0.5]],
       [[rotRow + 0.5, 2.5], [rotRow + 0.5, 0.5]],
     ][di];
-    console.log(pts);
     if (rev) pts.reverse();
-    drawArrow(
-      ctx,
-      pts.map(p => coord((rotAxis + di) % 3, p)),
-      ["red", "green", "blue"][rotAxis],
-      3,
-    );
+    drawArrow(ctx, pts.map(p => coord((rotAxis + di) % 3, p)), color, 3);
   }
+
+  const pos = coord((rotAxis + 2) % 3, rotRow == 0 ? [1.5, 1.5] : [-0.5, -0.5]);
+  ctx.font = "bold 20px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  // Draw outer stroke
+  ctx.fillStyle = ctx.strokeStyle = "white";
+  ctx.lineWidth = 4;
+  ctx.strokeText(rotation, ...pos);
+  // Draw filled text
+  ctx.fillStyle = color;
+  ctx.fillText(rotation, ...pos);
 };
 
 (() => {
@@ -109,7 +116,7 @@ const drawCube = (ctx, rotation) => {
     scrambleText.textContent = ''; // Clear the original text content
 
     const wrapper = document.createElement("div");
-    wrapper.style = "display: flex";
+    wrapper.style = "display: flex; padding: 3px;";
     scrambleText.appendChild(wrapper);
     const pairs = [];
     rotations.forEach(rotation => {
@@ -117,9 +124,9 @@ const drawCube = (ctx, rotation) => {
       column.style = "flex: 1;";
       wrapper.appendChild(column);
 
-      const text = document.createElement("div");
-      text.innerText = rotation;
-      column.appendChild(text);
+      // const text = document.createElement("div");
+      // text.innerText = rotation;
+      // column.appendChild(text);
 
       const canvas = document.createElement("canvas");
       canvas.style = "width: 100%; aspect-ratio: 1/1;";
@@ -131,40 +138,6 @@ const drawCube = (ctx, rotation) => {
     pairs.forEach(([rotation, canvas]) => {
       if (rotation) drawCube(canvas.getContext('2d'), rotation)
     });
-
-    // // Create a table to hold rotation text and corresponding canvases
-    // const table = document.createElement('table');
-    // table.style.borderCollapse = 'collapse';
-
-    // const textRow = document.createElement('tr');
-    // table.appendChild(textRow);
-    // const canvasRow = document.createElement('tr');
-    // table.appendChild(canvasRow);
-
-    // // Populate the table with rows for each rotation
-    // rotations.forEach((rotation) => {
-    //   // Create a cell for the rotation text
-    //   const textCell = document.createElement('td');
-    //   textCell.textContent = rotation;
-    //   textCell.style.padding = '5px';
-    //   textRow.appendChild(textCell);
-
-    //   // Create a cell for the canvas
-    //   const canvasCell = document.createElement('td');
-    //   const canvas = document.createElement('canvas');
-    //   // const size = 40;
-    //   canvas.style = "border: 1px solid black; width: 100%; aspect-ratio: 1/1;";
-    //   // canvas.width = size;
-    //   // canvas.height = size;
-    //   // canvas.style.border = '1px solid black';
-    //   canvasCell.appendChild(canvas);
-    //   canvasRow.appendChild(canvasCell);
-
-    //   drawCube(canvas.getContext('2d'), rotation, size);
-    // });
-
-    // Insert the table into the scramble text div
-    // scrambleText.appendChild(table);
   }
 
   // Initialize the canvases for the first time
